@@ -5,10 +5,10 @@ import xls from "../assets/xls.png";
 import Table from "./Table";
 
 function ExcelUpload() {
-  const [isFileUploaded, setisFileUploaded] = useState(false);
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [colDefs, setColDefs] = useState();
   const [data, setData] = useState();
-  const [dropDataTitle, setdropDataTitle] = useState([]);
+  const [dropDataTitle, setDropDataTitle] = useState([]);
 
   const importExcel = (e) => {
     const file = e.target.files[0];
@@ -24,7 +24,6 @@ function ExcelUpload() {
       const workSheet = workBook.Sheets[workSheetName];
       //convert to array
       const fileData = XLSX.utils.sheet_to_json(workSheet);
-      console.log(" File Data => ", fileData);
       setData(fileData);
       setColDefs(Object.keys(fileData[0]));
     };
@@ -36,7 +35,7 @@ function ExcelUpload() {
       if (extension === "xlsx" || extension === "xls") {
         reader.readAsArrayBuffer(file);
       } else {
-        setisFileUploaded(false);
+        setIsFileUploaded(false);
         alert("Invalid file input, Select Excel, CSV file");
       }
     } else {
@@ -52,8 +51,7 @@ function ExcelUpload() {
   const drop = (ev) => {
     ev.preventDefault();
     var data = ev.dataTransfer.getData("colIdx");
-    console.log("data => ", data);
-    setdropDataTitle([
+    setDropDataTitle([
       ...dropDataTitle,
       document.getElementById(colDefs[data]).textContent,
     ]);
@@ -73,23 +71,25 @@ function ExcelUpload() {
 
       <div className="second" onDrop={drop} onDragOver={allowDrop}>
         drop
-        {dropDataTitle && data && (
-          <table>
-            <tr>
-              {dropDataTitle.map((col) => (
-                <th>{col}</th>
-              ))}
+        <table>
+          <tr>
+            {dropDataTitle &&
+              dropDataTitle.length > 0 &&
+              dropDataTitle.map((col) => <th>{col}</th>)}
+          </tr>
 
-              {data.map((row) => (
-                <>
-                  {Object.entries(row).map(([k, v], idx) => {
-                    return <td key={v}>{row[dropDataTitle[idx]]}</td>;
-                  })}
-                </>
-              ))}
-            </tr>
-          </table>
-        )}
+          {data &&
+            data.length > 0 &&
+            data.map((row) => (
+              <tr>
+                {Object.entries(row).map(([k, v], idx) => {
+                  return row[dropDataTitle[idx]] ? (
+                    <td key={v}>{row[dropDataTitle[idx]]}</td>
+                  ) : null;
+                })}
+              </tr>
+            ))}
+        </table>
         <div className="third">
           <h1>chart</h1>
         </div>
